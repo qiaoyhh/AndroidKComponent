@@ -1,0 +1,110 @@
+task add(type: Copy) {
+    // 新建组件只需给serviceName指定名字后build即可
+    String serviceName
+
+    if (serviceName != null) {
+        String originalName = serviceName.replace("Service", "")
+        originalName = getFirstUpperString(originalName)
+        serviceName = serviceName.toLowerCase()
+        serviceName = serviceName.replace("service", "")
+        serviceName += 'service'
+
+        println "添加的是service，service名字为 " + serviceName
+
+        copyFolder(new File('scripts/template/service/templateservice'), new File('SubModule/Business/services/' + serviceName))
+        String rootPath = 'SubModule/Business/services/' + serviceName
+        new File(rootPath + '/templateservice').renameTo(new File(rootPath + '/' + serviceName))
+        new File(rootPath + '/templateservice-interface').renameTo(new File(rootPath + '/' + serviceName + '-interface'))
+
+        String servicePath = rootPath + '/' + serviceName + '/src/main/java/com/qyh/component/' + serviceName
+        String serviceInterfacePath = rootPath + '/' + serviceName + '-interface/src/main/java/com/qyh/component/' + serviceName + "_interface"
+        String androidTestPath = rootPath + '/' + serviceName + '/src/androidTest/java/com/qyh/component/' + serviceName
+        String testPath = rootPath + '/' + serviceName + '/src/test/java/com/qyh/component/' + serviceName
+        //改实现和接口module的路径名
+        new File(rootPath + '/' + serviceName + '/src/main/java/com/qyh/component/templateservice').renameTo(servicePath)
+        new File(rootPath + '/' + serviceName + '-interface/src/main/java/com/qyh/component/templateservice_interface').renameTo(serviceInterfacePath)
+        //改java文件的名字
+        new File(servicePath + '/TemplateServiceImpl.kt').renameTo(servicePath + '/' + originalName + 'ServiceImpl.kt')
+        new File(serviceInterfacePath + '/ITemplateServiceInterface.kt').renameTo(serviceInterfacePath + '/I' + originalName + 'ServiceInterface.kt')
+        new File(serviceInterfacePath + '/ITemplateServiceAdapter.kt').renameTo(serviceInterfacePath + '/I' + originalName + 'ServiceAdapter.kt')
+        //改单元测试路径名
+        new File(rootPath + '/' + serviceName + '/src/androidTest/java/com/qyh/component/templateservice').renameTo(androidTestPath)
+        new File(rootPath + '/' + serviceName + '/src/test/java/com/qyh/component/templateservice').renameTo(testPath)
+
+        //修改service的gradle依赖
+        replace(rootPath + '/' + serviceName + '/build.gradle', 'templateservice', serviceName)
+
+        //修改接口和实现类中的包名路径
+        replace(servicePath + '/' + originalName + 'ServiceImpl.kt', 'templateservice', serviceName)
+        replace(serviceInterfacePath + '/I' + originalName + 'ServiceInterface.kt', 'templateservice', serviceName)
+        replace(serviceInterfacePath + '/I' + originalName + 'ServiceAdapter.kt', 'templateservice', serviceName)
+
+        replace(androidTestPath + '/ExampleInstrumentedTest.java', 'templateservice', serviceName)
+        replace(androidTestPath + '/ExampleInstrumentedTest.java', 'TemplateService', originalName + 'Service')
+        replace(testPath + '/ExampleUnitTest.java', 'templateservice', serviceName)
+
+        //修改接口和实现类中的引用的类名
+        replace(servicePath + '/' + originalName + 'ServiceImpl.kt', 'TemplateService', originalName + 'Service')
+        replace(serviceInterfacePath + '/I' + originalName + 'ServiceInterface.kt', 'TemplateService', originalName + 'Service')
+        replace(serviceInterfacePath + '/I' + originalName + 'ServiceAdapter.kt', 'TemplateService', originalName + 'Service')
+
+        replace(rootPath + '/' + serviceName + '/src/main/AndroidManifest.xml', 'templateservice', serviceName)
+        replace(rootPath + '/' + serviceName + '-interface/src/main/AndroidManifest.xml', 'templateservice', serviceName)
+
+        //添加settings.gradle
+        String newLines = '//services\n' + "include ':${serviceName}-interface'\n" +
+                "project(':${serviceName}-interface').projectDir = new File('SubModule/Business/services/${serviceName}/${serviceName}-interface')\n" +
+                "include ':${serviceName}'\n" +
+                "project(':${serviceName}').projectDir = new File('SubModule/Business/services/${serviceName}/${serviceName}')"
+        replace('settings.gradle', '//services', newLines)
+        println "add service success"
+    }
+}
+
+def copyFolder(File src, File dest) {
+    if (src.isDirectory()) {
+        if (!dest.exists()) {
+            dest.mkdir();
+        }
+        String[] files = src.list()
+        for (String file : files) {
+            File srcFile = new File(src, file);
+            File destFile = new File(dest, file);
+            // 递归复制
+            copyFolder(srcFile, destFile);
+        }
+    } else {
+        InputStream inputStream = new FileInputStream(src);
+        OutputStream out = new FileOutputStream(dest);
+
+        byte[] buffer = new byte[1024];
+
+        int length;
+
+        while ((length = inputStream.read(buffer)) > 0) {
+            out.write(buffer, 0, length);
+        }
+        inputStream.close();
+        out.close();
+    }
+}
+
+static String getFirstUpperString(String str) {
+    char c = str.charAt(0)
+    StringBuilder s = new StringBuilder(String.valueOf(c.toUpperCase()))
+    s.append(str.substring(1, str.length()))
+    return s.toString()
+}
+
+static void replace(String filePath, String oldString, String newString) {
+    CharArrayWriter tempStream = new CharArrayWriter()
+    new File(filePath).withReader('UTF-8') { reader ->
+        reader.eachLine {
+            tempStream.write(it.replace(oldString, newString))
+            tempStream.append(System.getProperty("line.separator"))
+        }
+    }
+    FileWriter out = new FileWriter(filePath)
+    tempStream.writeTo(out)
+    out.close()
+}

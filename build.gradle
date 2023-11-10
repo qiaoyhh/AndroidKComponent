@@ -1,0 +1,98 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+apply from: "./scripts/template.gradle"
+
+buildscript {
+    ext {
+        kotlin_version = '1.7.0'
+    }
+    repositories {
+        mavenCentral()
+        google()
+        maven {
+            url "https://mirrors.tencent.com/nexus/repository/maven-public/"
+        }
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/tencent_public/"
+        }
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/thirdparty/"
+        }
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/thirdparty-snapshots/"
+        }
+
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/karaoke-android"
+        }
+
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/karaoke-android-snapshot"
+        }
+
+        maven {
+            url 'https://mirrors.tencent.com/repository/maven/TME-Quality-Center'
+        }
+        //阿里云jcenter仓库
+        maven{ url 'https://maven.aliyun.com/repository/jcenter' }
+        maven {
+            url 'https://jitpack.io'
+        }
+        jcenter()
+        maven {
+            url 'https://maven.google.com/'
+            name 'Google'
+        }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.2.1'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://mirrors.tencent.com/nexus/repository/maven-public/"
+        }
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/tencent_public/"
+        }
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/thirdparty/"
+        }
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/thirdparty-snapshots/"
+        }
+
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/karaoke-android"
+        }
+
+        maven {
+            url "https://mirrors.tencent.com/repository/maven/karaoke-android-snapshot"
+        }
+
+        maven {
+            url 'https://mirrors.tencent.com/repository/maven/TME-Quality-Center'
+        }
+        google()
+        //阿里云jcenter仓库
+        maven{ url 'https://maven.aliyun.com/repository/jcenter' }
+        maven {
+            url 'https://jitpack.io'
+        }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+
+//图片自动压缩
+apply plugin: com.tencent.wesing.image_compress.ImgCompressPlugin
+imgCompressOpt {
+    way = "tinypng"
+    tinyKeys=["CCnSxNylYf7WnF5nYzW683H3LRc6FRbw"]
+}

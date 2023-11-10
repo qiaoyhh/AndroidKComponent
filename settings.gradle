@@ -1,0 +1,29 @@
+include ':app'
+include ':libapi'
+project(':libapi').projectDir = new File('SubModule/Base/libapi')
+
+include ':module-framework'
+project(':module-framework').projectDir = new File('SubModule/Framework/module-framework')
+
+include ':servicebuilder'
+project(':servicebuilder').projectDir = new File('SubModule/Business/builder/servicebuilder')
+include ':page-main'
+project(':page-main').projectDir = new File('SubModule/Business/pages/page-main')
+
+include ':libui'
+project(':libui').projectDir = new File('SubModule/Base/libui')
+
+
+//services
+include ':testservice-interface'
+project(':testservice-interface').projectDir = new File('SubModule/Business/services/testservice/testservice-interface')
+include ':testservice'
+project(':testservice').projectDir = new File('SubModule/Business/services/testservice/testservice')
+include ':userinfoservice'
+project(':userinfoservice').projectDir = new File('SubModule/Business/services/userservice/userinfoservice')
+include ':userinfoservice-interface'
+project(':userinfoservice-interface').projectDir = new File('SubModule/Business/services/userservice/userinfoservice-interface')
+include ':loginservice'
+project(':loginservice').projectDir = new File('SubModule/Business/services/loginservice/loginservice')
+include ':loginservice-interface'
+project(':loginservice-interface').projectDir = new File('SubModule/Business/services/loginservice/loginservice-interface')
